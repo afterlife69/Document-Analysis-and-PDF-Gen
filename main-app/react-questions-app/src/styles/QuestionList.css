@@ -1,0 +1,24 @@
+.upload-list {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+.upload-list-item {
+    padding: 10px;
+    margin: 5px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    cursor: grab;
+}
+
+.upload-list-item:active {
+    cursor: grabbing;
+}
+
+.upload-list-item.dragging {
+    opacity: 0.5;
+}

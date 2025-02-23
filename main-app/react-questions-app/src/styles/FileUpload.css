@@ -1,0 +1,28 @@
+.upload-file {
+    position: relative;
+    width: 100%;
+    min-width: 800px;
+    min-height: 50px;
+    margin: 10px 0;
+}
+
+.upload-button {
+    background-color: #0ea5e9;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: medium;
+    transition: background-color 0.3s;
+}
+
+.upload-button:hover {
+    background-color: #7dd3fc;
+}
+
+.upload-message {
+    margin-top: 10px;
+    font-size: small;
+    color: #333;
+}

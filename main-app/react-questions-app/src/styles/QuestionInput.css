@@ -1,0 +1,46 @@
+.upload-body {
+    height: 97vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.upload-main {
+    top: 20%;
+    border: 1px solid #333;
+    padding: 30px;
+    border-radius: 25px;
+    position: absolute;
+    min-width: 300px;
+    overflow: hidden;
+}
+
+.upload-input {
+    position: relative;
+    width: 100%;
+    min-width: 800px;
+    min-height: 50px;
+    font-size: medium;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #333;
+    border-radius: 50px;
+    z-index: 1000;
+}
+
+.upload-file {
+    position: relative;
+    width: 100%;
+    min-width: 800px;
+    min-height: 50px;
+}
+
+@media (max-width: 768px) {
+    .upload-main {
+        top: 10%;
+        min-width: 300px;
+    }
+    .upload-input {
+        min-width: 300px;
+    }
+}
