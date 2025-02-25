@@ -1,5 +1,5 @@
 import jwt, { decode } from 'jsonwebtoken';
-import { JWT_SECRET } from '../config.js';
+import { JWT_SECRET } from '../config/jwt.js';
 
 export function userAuthMiddleware(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -13,6 +13,9 @@ export function userAuthMiddleware(req, res, next) {
     const decoded = jwt.verify(token, JWT_SECRET);
 
     if(decoded.userId){
+        console.log(req.body);
+        
+        req.userId = decoded.userId;
         next();
     }
     else{

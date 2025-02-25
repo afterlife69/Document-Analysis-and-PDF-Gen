@@ -4,6 +4,7 @@ import axios from 'axios';
 import './pixelcanvas'
 import "./pdfhome.css"
 import { useNavigate } from 'react-router-dom';
+import Navbar from '../components/Navbar';
 
 export default function PdfHome() {
     const [warning, setWarning] = useState('');
@@ -13,7 +14,7 @@ export default function PdfHome() {
     useEffect(() => {
         const fetchDocuments = async () => {
             try {
-                const res = await axios.get('http://localhost:8080/getDocuments', {
+                const res = await axios.get('http://localhost:8080/api/documents', {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
                         'user-email': localStorage.getItem('email')
@@ -61,7 +62,7 @@ export default function PdfHome() {
                 const formData = new FormData();
                 formData.append('document', file);
                 
-                await axios.post('http://localhost:8080/upload', formData, {
+                await axios.post('http://localhost:8080/api/upload', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -88,6 +89,7 @@ export default function PdfHome() {
 
     return (
         <div className='pdf-body'>
+            <Navbar />
             <Collapse in={Boolean(warning)}>
                 <Alert 
                     severity="error"

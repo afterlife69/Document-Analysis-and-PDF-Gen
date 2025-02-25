@@ -21,7 +21,7 @@ export default function Login() {
 
     const handleSubmit = (e) => {
       e.preventDefault();
-      axios.post('http://localhost:8080/login', data)
+      axios.post('http://localhost:8080/api/auth/signin', data)
       .then((res) => {
         console.log(res.data);
         localStorage.setItem('email', data.email);

@@ -1,20 +1,49 @@
 import React from 'react';
+import { useState } from 'react';
+import axios from 'axios';
 import './pixelcanvas';
 import './signup.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export default function SignUp() {
+    const nav = useNavigate()
+    const [data, setData] = useState({
+        firstname: '',
+        lastname: '',
+        username: '',
+        email: '',
+        password: ''
+    });
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await axios.post('http://localhost:8080/api/auth/signup', data).then((res) => {
+            alert('User registered successfully');
+            nav('/signin');
+        }).catch((err) => {
+            alert('Error registering user');
+            setData({
+                firstname: '',
+                lastname: '',
+                username: '',
+                email: '',
+                password: ''
+            });
+        });
+    }
+
     return (
         <div className="signup-container">
             <div className="signup-form">
                 <h1 className="signup-form-title">Welcome, Register Here.</h1>
-                <form>
+                <form onSubmit={handleSubmit}>
                 <div className="signup-input-group">
                         <label htmlFor="first-name">First Name</label>
                         <input
                             type="text"
                             id="firstname"
                             placeholder="Enter your first name"
+                            value={data.firstname}
+                            onChange={(e) => setData({...data, firstname: e.target.value})}
                             required
                         />
                     </div>
@@ -24,6 +53,8 @@ export default function SignUp() {
                             type="text"
                             id="lastname"
                             placeholder="Enter your last name"
+                            value={data.lastname}
+                            onChange={(e) => setData({...data, lastname: e.target.value})}
                         />
                     </div>
                     <div className="signup-input-group">
@@ -32,6 +63,8 @@ export default function SignUp() {
                             type="text"
                             id="username"
                             placeholder="Enter your username"
+                            value={data.username}
+                            onChange={(e) => setData({...data, username: e.target.value})}
                             required
                         />
                     </div>
@@ -41,6 +74,8 @@ export default function SignUp() {
                             type="email"
                             id="email"
                             placeholder="Enter your email"
+                            value={data.email}
+                            onChange={(e) => setData({...data, email: e.target.value})}
                             required
                         />
                     </div>
@@ -50,6 +85,8 @@ export default function SignUp() {
                             type="password"
                             id="password"
                             placeholder="••••••••"
+                            value={data.password}
+                            onChange={(e) => setData({...data, password: e.target.value})}
                             required
                         />
                     </div>
