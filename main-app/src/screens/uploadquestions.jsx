@@ -7,7 +7,6 @@ import { Button, Stack, Snackbar, Alert } from '@mui/material';
 import Sortable from 'sortablejs';
 import { AddCircle, CloudUpload, Delete as DeleteIcon, Send, Edit as EditIcon } from '@mui/icons-material';
 import Loading from './loading';
-import { useResponses } from '../context/ResponseContext';
 
 
 export default function PdfHome() {
@@ -17,7 +16,6 @@ export default function PdfHome() {
     const questionsListRef = useRef(null);
     const sortableInstanceRef = useRef(null);
     const nav = useNavigate();
-    const { updateResponses } = useResponses();
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
@@ -136,8 +134,6 @@ export default function PdfHome() {
     };
 
     const handleSubmitAll = () => {
-        console.log(localStorage.getItem('sessionId'));
-        
         if (!questions.length) {
             setSnackbarSeverity('warning');
             setSnackbarMessage('No questions to submit.');
@@ -145,32 +141,18 @@ export default function PdfHome() {
             return;
         }
         setLoading(true);
-        console.log(questions);
-        console.log(localStorage.getItem('sessionId'));
         axios.post('http://localhost:8080/api/pdf', {
             questions,
             sessionId: localStorage.getItem('sessionId')
-        },
-        {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`,
-            }
-        }
-    ).then((res) => {
-            console.log('hello');
+        }).then((res) => {
+            const QnA = res.data.responses;
             
-            updateResponses(res.data.url);
-            nav('/viewpdf'); // Navigate to PDF view after setting responses
-        }).catch((error) => {
-            console.log(error);
-            
-            setSnackbarSeverity('error');
-            setSnackbarMessage('Failed to submit questions.');
-            setSnackbarOpen(true);
-        }).finally(() => {
-            setLoading(false);
-        });
+        })
+
+
+        setSnackbarSeverity('success');
+        setSnackbarMessage('All questions submitted successfully.');
+        setSnackbarOpen(true);
     };
 
     const handleEditStart = (question) => {

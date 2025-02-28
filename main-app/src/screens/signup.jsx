@@ -91,7 +91,7 @@ export default function SignUp() {
                         />
                     </div>
                     <button type="submit" className="signup-button">
-                        Sign In
+                        Sign Up
                     </button>
                 </form>
                 <div className="signup-additional-links signup-centerdv">
@@ -100,11 +100,11 @@ export default function SignUp() {
                     </Link>
                 </div>
                 
-                    <pixel-canvas
-                        data-gap="15"
-                        data-speed="20"
-                        data-colors="#e0f2fe, #7dd3fc, #0ea5e9"
-                    />
+                <pixel-canvas
+                data-gap="35"
+                data-speed="30"
+                data-colors="#e0f2fe, #7dd3fc, #0ea5e9"
+            />
                 
             </div>
         </div>

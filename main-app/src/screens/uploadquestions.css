@@ -52,9 +52,7 @@
 .upload-btn-label:hover .btn-text
 */
 
-pixel-canvas {
-    z-index: -1000;
-}
+
 
 .input-container {
     display: flex;

@@ -1,10 +1,8 @@
 // src/controllers/uploadController.js
-import AWS from 'aws-sdk';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import multer from 'multer';
 import DocumentEmbedding from '../models/documentEmbedding.js';
-import {s3} from '../config/s3.js';
 import { getEmbedding } from '../utils/ai.js';
 import { chunkText } from '../utils/textProcessing.js';
 import { extractTextFromBuffer } from '../utils/pdfProcessing.js';
@@ -64,19 +62,7 @@ export const uploadDocuments = async (req, res) => {
       });
       await Promise.all(embeddingPromises);
     }
-
-    // Upload files to S3 under the user's folder
-    const s3UploadPromises = req.files.map((file) => {
-      const params = {
-        Bucket: process.env.AWS_BUCKET_NAME,
-        Key: `${userId}/${file.originalname}`,
-        Body: file.buffer,
-        ContentType: 'application/pdf',
-      };
-      return s3.upload(params).promise();
-    });
-    await Promise.all(s3UploadPromises);
-
+    
     res.status(200).json({
       message: 'Documents processed successfully',
       sessionId,

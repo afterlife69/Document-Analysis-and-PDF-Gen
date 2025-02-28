@@ -9,42 +9,30 @@
   --ease-in-out: cubic-bezier(0.45, 0, 0.55, 1);
 }
 
-.pdf-body{
-  height: 98vh;
+.pdf-body {
+  min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
+  padding-top: 80px; /* Add space for navbar */
 }
+
 .pdf-main {
+  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space);
-  margin: auto;
+  gap: 2rem;
+  padding: 2rem;
   width: 100%;
   max-width: 1200px;
-  padding: 0 1rem;
-
-  @media (max-height: 762px) {
-    margin-top: 25%;
-    margin-bottom: 25%;
-  }
-
-  @media (max-width: 37rem) {
-    flex-direction: column;
-    --max: 30rem;
-  }
-
-  @media (min-width: 37rem) {
-    --max: 60rem;
-  }
+  margin: 0 auto;
 }
 
 .pdf-card {
-  height: 150px;
   width: 100%;
   max-width: 800px;
+  height: 180px;
+  margin-bottom: 2rem;
   position: relative;
   overflow: hidden;
   display: grid;
@@ -105,11 +93,9 @@
   z-index: 1;
 }
 
-
 .pdf-card button {
-   opacity: 0;
+  opacity: 0;
 }
-
 
 .pdf-card:where(:hover) {
   border-color: var(--active-color, var(--fg));
@@ -200,7 +186,6 @@
 }
 
 .pdf-item {
-  
   min-width: 225px;
   height: 150px;
   flex: 0 0 auto;
@@ -375,4 +360,226 @@
 /* For Chrome, Safari, and Opera */
 .pdf-item > iframe::-webkit-scrollbar {
   display: none;
+}
+
+.pdf-gallery-container {
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 1rem;
+}
+
+.pdf-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.pdf-card-item {
+  height: 300px;  /* Reduced height */
+  background: var(--surface-2);
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  transition: transform 0.3s var(--ease-out);
+}
+
+.pdf-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: none;
+}
+
+/* Ensure all cards maintain aspect ratio */
+.pdf-card-item::before {
+  content: '';
+  display: block;
+  padding-top: 141.4%; /* Maintain A4 aspect ratio (1:√2) */
+}
+
+.pdf-card-item > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pdf-card-item {
+  position: relative;
+  aspect-ratio: 3/4;
+  background: var(--surface-2);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s var(--ease-out);
+  animation-duration: 0.5s;
+  animation-fill-mode: both;
+}
+
+.pdf-card-item.slide-left {
+  animation-name: slideFromRight;
+}
+
+.pdf-card-item.slide-right {
+  animation-name: slideFromLeft;
+}
+
+@keyframes slideFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.pdf-card-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.pdf-preview {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.pdf-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease-out);
+}
+
+.pdf-card-item:hover .pdf-card-overlay {
+  opacity: 1;
+}
+
+.preview-btn,
+.download-btn {
+  background: var(--surface-2) !important;
+  color: var(--fg) !important;
+  padding: 8px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s var(--ease-out) !important;
+}
+
+.preview-btn svg,
+.download-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.preview-btn:hover,
+.download-btn:hover {
+  background: var(--surface-3) !important;
+  transform: scale(1.1);
+}
+
+.preview-btn {
+  width: 44px !important;
+  height: 44px !important;
+  background: rgba(39, 39, 42, 0.8) !important;
+  backdrop-filter: blur(4px);
+}
+
+.preview-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Update preview modal styles */
+.preview-modal .preview-content {
+  position: relative;
+  width: 95%;
+  height: 95%;
+  background: var(--surface-1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.preview-modal .action-buttons {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.preview-modal .action-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(39, 39, 42, 0.8);
+  border: none;
+  color: var(--fg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s var(--ease-out);
+}
+
+.preview-modal .action-button:hover {
+  background: var(--surface-3);
+  transform: scale(1.1);
+}
+
+.preview-modal .action-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.pagination-container {
+  margin: 2rem 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.MuiPagination-root {
+  .MuiPaginationItem-root {
+    color: var(--fg);
+    border-color: var(--surface-3);
+    
+    &.Mui-selected {
+      background-color: var(--surface-3);
+    }
+    
+    &:hover {
+      background-color: var(--surface-2);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .pdf-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+  
+  .pdf-card {
+    height: 150px;
+  }
 }

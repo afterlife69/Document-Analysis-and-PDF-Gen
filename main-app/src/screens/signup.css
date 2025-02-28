@@ -19,12 +19,12 @@
 .signup-form {
     position: relative;
     background: rgb(0, 0, 0);
-    padding: 3.5rem;
+    padding: 2.5rem;
     border-radius: 1rem;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     border: 1px solid var(--surface-2);
     width: 90%;
-    max-width: 600px;
+    max-width: 450px;
     overflow: hidden;
 }
 
@@ -48,8 +48,8 @@
 
 .signup-form-title {
     color: #e0e0e0;
-    font-size: 2rem;
-    margin-bottom: 2rem;
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
     text-align: center;
     font-weight: 700;
     z-index: 1;
@@ -57,7 +57,7 @@
 }
 
 .signup-input-group {
-    margin-bottom: 1rem;
+    margin-bottom: 0.8rem;
     position: relative;
     z-index: 1;
 }

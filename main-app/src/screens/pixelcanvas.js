@@ -192,7 +192,9 @@ class Pixel {
       this.handleAnimation("appear");
     }
   
-    onmouseleave() {
+    onmouseleave(e) {
+      // Only trigger "disappear" if no descendant of the parent is focused
+      if (this._parent.contains(document.activeElement)) return;
       this.handleAnimation("disappear");
     }
   

@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './pixelcanvas';
 import axios from 'axios';
 import './login.css';
-import { useState } from 'react';
-import { Snackbar, Alert } from '@mui/material';
+import { Snackbar, Alert, CircularProgress, Button } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import WelcomeTransition from '../components/WelcomeTransition';
 
 export default function Login() {
     const nav = useNavigate();
@@ -16,36 +16,47 @@ export default function Login() {
     const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarSeverity, setSnackbarSeverity] = useState('error');
     const [snackbarMessage, setSnackbarMessage] = useState('');
-
-
-
-    const handleSubmit = (e) => {
+    const [loading, setLoading] = useState(false);
+    const [loginSuccess, setLoginSuccess] = useState(false);
+    const [showTransition, setShowTransition] = useState(false);
+    useEffect(() => {
+      if (localStorage.getItem('token')){
+        nav('/'); }
+      }, []);
+    const handleSubmit = async (e) => {
       e.preventDefault();
-      axios.post('http://localhost:8080/api/auth/signin', data)
-      .then((res) => {
+      setLoading(true);
+      try {
+        const res = await axios.post('http://localhost:8080/api/auth/signin', data);
         console.log(res.data);
         localStorage.setItem('email', data.email);
         localStorage.setItem('token', res.data.token);
         setSnackbarOpen(true);
         setSnackbarSeverity('success');
-        setSnackbarMessage('Logged in successfully');
+        setSnackbarMessage('Login successful! Redirecting...');
+        setLoginSuccess(true);
+        
+        // Show transition with a longer delay for smoother fade-out
         setTimeout(() => {
-          nav('/pdf');
-        }, 3000);
-      })
-      .catch((err) => {
+          setShowTransition(true);
+        }, 500);
+      } catch (err) {
         console.log(err);
         setSnackbarOpen(true);
         setSnackbarSeverity('error');
         setSnackbarMessage('Invalid email or password');
-      })
+        setLoading(false);
+      }
     }
-    
 
+    // If showing transition, render the transition component
+    if (showTransition) {
+      return <WelcomeTransition />;
+    }
 
     return (
-      <div className="login-container">
-        <div className="login-form">
+      <div className={`login-container ${loginSuccess ? 'fade-out' : ''}`}>
+        <div className="login-form" tabIndex={0}>
           <h1 className="form-title">Welcome back!</h1>
           <form>
             <div className="input-group">
@@ -68,9 +79,37 @@ export default function Login() {
                 required
               />
             </div>
-            <button type='submit' className="login-button" onClick={handleSubmit}>
-              Sign In
-            </button>
+            <Button 
+              type="submit"
+              variant="contained" 
+              fullWidth 
+              className="login-button"
+              onClick={handleSubmit}
+              disabled={loading || loginSuccess}
+              sx={{
+                bgcolor: '#696969', // Grey color
+                '&:hover': {
+                  bgcolor: '#808080', // Lighter grey on hover
+                },
+                '&:disabled': {
+                  bgcolor: '#555555', // Darker grey when disabled
+                }
+              }}
+            >
+              {loading ? (
+                <div className="button-loader">
+                  <CircularProgress size={24} color="inherit" />
+                  <span className="loader-text">Signing in...</span>
+                </div>
+              ) : loginSuccess ? (
+                <div className="button-loader">
+                  <CircularProgress size={24} color="inherit" />
+                  <span className="loader-text">Redirecting...</span>
+                </div>
+              ) : (
+                'Sign In'
+              )}
+            </Button>
           </form>
           <div className="additional-links">
             <Link to="/forgot-pass">Forgot password?</Link>
@@ -78,8 +117,8 @@ export default function Login() {
           </div>
           
           <pixel-canvas
-            data-gap="15"
-            data-speed="20"
+            data-gap="35"
+            data-speed="30"
             data-colors="#e0f2fe, #7dd3fc, #0ea5e9"
           />
           
@@ -94,5 +133,5 @@ export default function Login() {
           </Alert>
         </Snackbar>
       </div>
-  );
+    );
 }
