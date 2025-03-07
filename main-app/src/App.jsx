@@ -5,6 +5,8 @@ import Login from "./screens/login";
 import SignUp from "./screens/signup";
 import UploadQuestions from "./screens/uploadquestions";
 import ViewPDF from "./screens/viewpdf";
+import UploadQuestionPaper from "./screens/uploadQP";
+import LeaderboardQP from "./screens/leaderboardQP";
 export default function App(){
   return (
     <>
@@ -16,6 +18,8 @@ export default function App(){
         <Route path="/signup" element={<SignUp />} />
         <Route path="/uploadquestions" element={<UploadQuestions />} />
         <Route path="/viewpdf" element={<ViewPDF />} />
+        <Route path="/uploadQP" element={<UploadQuestionPaper />} />
+        <Route path="/leaderboard" element={<LeaderboardQP />} />
       </Routes>
       </BrowserRouter>
     </>

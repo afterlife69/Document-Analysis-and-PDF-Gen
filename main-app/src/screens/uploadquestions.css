@@ -3,21 +3,30 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    
+    background-color: #121212;
 }
 
 .upload-main {
-    top: 20%;
     border: 1px solid #333;
-    padding: 30px;
     border-radius: 25px;
-    position: absolute;
     min-width: min(1200px, 90vw);
+    max-width: 1200px;
+    min-height: 80vh;
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: clamp(15px, 3vw, 30px);
+    background-color: #1a1a1a;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.content-wrapper {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 .upload-input{
@@ -52,8 +61,6 @@
 .upload-btn-label:hover .btn-text
 */
 
-
-
 .input-container {
     display: flex;
     align-items: center;
@@ -61,20 +68,46 @@
     margin-bottom: 20px;
 }
 
+.controls-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 0;
+    flex-wrap: wrap;
+}
+
+.top-controls {
+    border-bottom: 1px solid #333;
+    padding-bottom: 20px;
+}
+
+.bottom-controls {
+    border-top: 1px solid #333;
+    padding-top: 20px;
+    justify-content: space-between;
+}
+
+.control-button {
+    min-width: 120px;
+}
+
+.select-control {
+    min-width: 150px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
 .questions-container {
-    position: absolute;
-    top: 45%;
-    width: 90%;
-    max-width: 800px;
+    flex: 1;
+    width: 100%;
     margin: 0 auto;
     padding: 16px;
     border-radius: 8px;
-    background-color: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.3);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    min-height: 100px;
     color: #fff;
-    max-height: 50vh; /* increased from 40vh */
-    overflow-y: overlay; /* changed from auto */
+    max-height: 60vh;
+    overflow-y: auto;
     
     /* Modern scrollbar styling */
     &::-webkit-scrollbar {
@@ -98,24 +131,25 @@
 
 .questions-list {
     width: 100%;
-    min-height: 50px;
 }
 
 .question-item {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     padding: 12px;
-    margin-bottom: 8px;
-    border: 1px solid #fff; /* thin white border */
-    border-radius: 4px;
-    cursor: default;
+    margin-bottom: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background-color: rgba(255, 255, 255, 0.05);
+    position: relative;
 }
 
 .drag-handle {
     cursor: grab;
     padding: 0 8px;
     margin-right: 12px;
-    color: #666;
+    color: #aaa;
+    align-self: center;
 }
 
 .drag-handle:active {
@@ -124,34 +158,48 @@
 
 .question-content {
     flex: 1;
+    padding: 8px;
+    min-height: 40px;
+    border-radius: 4px;
+    word-break: break-word;
+    cursor: pointer;
 }
 
 .question-content.editable {
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
     color: white;
-    padding: 4px 8px;
+    padding: 10px;
     outline: none;
+    width: 90%;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 1rem;
+    line-height: 1.5;
+    min-height: 50px;
 }
 
-.question-actions {
-    display: flex;
-    gap: 8px;
+.delete-button {
+    color: #f44336 !important;
+    position: absolute;
+    top: 5px;
+    background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+.delete-button:hover {
+    background-color: rgba(244, 67, 54, 0.1) !important;
 }
 
 .sortable-ghost {
     opacity: 0.4;
-    background: rgb(41, 41, 41);
 }
 
 .sortable-chosen {
-    background: rgb(41, 41, 41);
+    background-color: rgba(255, 255, 255, 0.1);
 }
 
 .sortable-drag {
-    background: rgb(41, 41, 41);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
 }
 
 .questions-header {
@@ -162,26 +210,70 @@
     padding: 0 8px;
 }
 
-.question-counter {
-    color: #888;
-    font-size: 0.9rem;
+/* Add styles for the select dropdowns */
+.MuiSelect-select {
+    background-color: rgb(41, 41, 41) !important;
+    color: white !important;
+}
+
+.MuiInputLabel-root {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.MuiOutlinedInput-notchedOutline {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.MuiMenuItem-root {
+    color: #000;
 }
 
 @media (max-width: 1024px) {
     .upload-main {
-        width: 90vw;
+        width: 95vw;
         min-width: unset;
-        top: 15%;
+        padding: 15px;
+        min-height: 90vh;
     }
 
-    .input-container {
+    .controls-container {
         flex-direction: column;
-        gap: 16px;
+        gap: 10px;
+        align-items: stretch;
     }
-
+    
+    .top-controls {
+        padding-bottom: 15px;
+    }
+    
+    .bottom-controls {
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    
     .questions-container {
-        width: 85vw;
-        top: 50%;
+        max-height: 50vh;
+    }
+    
+    .control-button,
+    .select-control {
+        width: 100%;
     }
 }
 
+@media (max-width: 600px) {
+    .upload-main {
+        border-radius: 15px;
+        padding: 10px;
+    }
+    
+    .question-item {
+        padding: 10px;
+        margin-bottom: 8px;
+    }
+    
+    .questions-container {
+        padding: 10px;
+        max-height: 40vh;
+    }
+}

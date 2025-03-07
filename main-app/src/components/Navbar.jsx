@@ -8,7 +8,7 @@ const Navbar = () => {
 
 return (
     <AppBar sx={{ 
-        background: 'black',
+        background: 'var(--surface-2)',
         borderBottom: '1px solid var(--surface-3)',
         boxShadow: 'none',
     }}>

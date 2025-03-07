@@ -6,12 +6,25 @@ import AWS from 'aws-sdk'
 
 export const generatePDF = async (req, res) => {
   try {
-    const { questions, sessionId } = req.body;
-    console.log(questions);
+    const { questions, sessionId, contentLength = 'medium', complexity = 'simple' } = req.body;
+    console.log(questions, contentLength, complexity);
     
     const userId = req.userId;
     if (!sessionId) return res.status(400).json({ message: 'Session ID is required' });
     if (!Array.isArray(questions)) return res.status(400).json({ message: 'Questions must be an array' });
+
+    // Configure length based on setting
+    const lengthConfig = {
+      short: "Keep the answer brief and concise, around 100-150 words.",
+      medium: "Provide a moderately detailed answer with about 200-300 words.",
+      long: "Give an in-depth comprehensive answer with 400-600 words."
+    };
+
+    // Configure complexity based on setting
+    const complexityConfig = {
+      simple: "Use simple language and explain concepts in an easy-to-understand manner, avoiding jargon where possible.",
+      technical: "Use technical language appropriate for the domain, including specific terminology and detailed explanations of complex concepts."
+    };
 
     const responses = [];
 
@@ -38,7 +51,10 @@ export const generatePDF = async (req, res) => {
 
   Question: ${question}
 
-  Please provide a detailed, well-structured response with relevant information from the context.
+  ${lengthConfig[contentLength]}
+  ${complexityConfig[complexity]}
+  
+  Please provide a well-structured response with relevant information from the context.
   Don't just answer the question directly, explain the concepts and provide examples where necessary.
   Include section headings where appropriate and organize the information logically.`;
       const result = await chatModel.generateContent(prompt);

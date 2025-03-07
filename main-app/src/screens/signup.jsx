@@ -8,8 +8,8 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function SignUp() {
     const nav = useNavigate()
     const [data, setData] = useState({
-        firstname: '',
-        lastname: '',
+        firstName: '',
+        lastName: '',
         username: '',
         email: '',
         password: ''
@@ -22,8 +22,8 @@ export default function SignUp() {
         }).catch((err) => {
             alert('Error registering user');
             setData({
-                firstname: '',
-                lastname: '',
+                firstName: '',
+                lastName: '',
                 username: '',
                 email: '',
                 password: ''
@@ -43,7 +43,7 @@ export default function SignUp() {
                             id="firstname"
                             placeholder="Enter your first name"
                             value={data.firstname}
-                            onChange={(e) => setData({...data, firstname: e.target.value})}
+                            onChange={(e) => setData({...data, firstName: e.target.value})}
                             required
                         />
                     </div>
@@ -54,7 +54,7 @@ export default function SignUp() {
                             id="lastname"
                             placeholder="Enter your last name"
                             value={data.lastname}
-                            onChange={(e) => setData({...data, lastname: e.target.value})}
+                            onChange={(e) => setData({...data, lastName: e.target.value})}
                         />
                     </div>
                     <div className="signup-input-group">

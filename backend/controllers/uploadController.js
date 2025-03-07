@@ -21,14 +21,7 @@ export const uploadDocuments = async (req, res) => {
     return res.status(400).json({ message: 'Maximum 10 files allowed' });
   }
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ message: 'No token provided' });
-    }
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userId = decoded.userId;
-    console.log('User ID:', userId);
+    const userId = req.userId;
     
     if (!userId) return res.status(401).json({ message: 'Invalid token' });
 

@@ -14,7 +14,6 @@ export function userAuthMiddleware(req, res, next) {
 
     if(decoded.userId){
         console.log(req.body);
-        
         req.userId = decoded.userId;
         next();
     }

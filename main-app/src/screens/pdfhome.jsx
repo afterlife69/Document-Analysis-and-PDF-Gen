@@ -1,12 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Alert, Collapse } from '@mui/material';
+import { Alert, Collapse, AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
 import axios from 'axios';
-import './pixelcanvas'
-import "./pdfhome.css"
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 import { Pagination, IconButton } from '@mui/material';
-import { ChevronLeft, ChevronRight } from '@mui/icons-material';
+import { ChevronLeft, ChevronRight, EmojiEvents, CloudUpload, Logout } from '@mui/icons-material';
+import './pixelcanvas';
+import "./pdfhome.css";
 
 export default function PdfHome() {
     const [warning, setWarning] = useState('');
@@ -15,6 +14,8 @@ export default function PdfHome() {
     const [currentPage, setCurrentPage] = useState(1);
     const [animationDirection, setAnimationDirection] = useState('');
     const cardsPerPage = 4;
+    const navigate = useNavigate();
+    const fileInputRef = useRef(null);
 
     useEffect(() => {
         const fetchDocuments = async () => {
@@ -33,13 +34,19 @@ export default function PdfHome() {
             }
         };
         fetchDocuments();
-    }, []); // Empty dependency array ensures the effect runs only once
+    }, []);
+    
+    const handleLogout = () => {
+        localStorage.removeItem('email');
+        localStorage.removeItem('sessionId');
+        localStorage.removeItem('token');
+        navigate('/signin');
+    };
 
-    console.log(documentLinks);
+    const navigateTo = (path) => {
+        navigate(path);
+    };
     
-    
-    const fileInputRef = useRef(null);
-    const nav = useNavigate()
     const handleFileUpload = async (event) => {
         const files = Array.from(event.target.files || []);
         const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
@@ -77,14 +84,12 @@ export default function PdfHome() {
                     localStorage.setItem('sessionId', res.data.sessionId);
                 })
             }
-            nav('/uploadquestions');
+            navigate('/uploadquestions');
         } catch (error) {
             setWarning('Failed to upload one or more files. Please try again.');
             console.error('Upload error:', error);
         }
     };
-
-    const navigate = useNavigate();
     
     const openPreview = (url) => {
         navigate(`/viewpdf?url=${encodeURIComponent(url)}`);
@@ -123,7 +128,35 @@ export default function PdfHome() {
 
     return (
         <div className='pdf-body'>
-            <Navbar />
+            <AppBar position="fixed" color="primary" sx={{ boxShadow: 2, backgroundColor: "#121212" }}>
+                <Toolbar>
+                    <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                        Uploads
+                    </Typography>
+                    
+                    <Box sx={{ display: 'flex', gap: 2 }}>
+                        <Button 
+                            color="inherit" 
+                            startIcon={<CloudUpload />}
+                            onClick={() => navigateTo('/uploadQP')}
+                            sx={{ textTransform: 'none' }}
+                        >
+                            Upload Papers
+                        </Button>
+                        
+
+                        <Button 
+                            color="inherit" 
+                            startIcon={<Logout />}
+                            onClick={handleLogout}
+                            sx={{ textTransform: 'none' }}
+                        >
+                            Logout
+                        </Button>
+                    </Box>
+                </Toolbar>
+            </AppBar>
+            
             {warning && (
                 <Collapse in={Boolean(warning)}>
                     <Alert 
@@ -158,7 +191,7 @@ export default function PdfHome() {
                         accept=".pdf,.doc,.docx"
                         className="file-input"
                         style={{ display: 'none' }}
-                        multiple // Add this attribute
+                        multiple
                     />
                     <button className="upload-button" onClick={() => fileInputRef.current.click()}></button>
                     <h3 className='pdf-title'>Upload</h3>
@@ -186,15 +219,15 @@ export default function PdfHome() {
             </main>
             
             {previewUrl && (
-                <div className="preview-modal" onClick={closePreview}>
+                <div className="preview-modal" onClick={() => setPreviewUrl(null)}>
                     <div className="preview-content" onClick={e => e.stopPropagation()}>
                         <div className="action-buttons">
-                            <button className="action-button" onClick={handleDownload}>
+                            <button className="action-button">
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                     <path fillRule="evenodd" d="M12 2.25a.75.75 0 01.75.75v11.69l3.22-3.22a.75.75 0 111.06 1.06l-4.5 4.5a.75.75 0 01-1.06 0l-4.5-4.5a.75.75 0 111.06-1.06l3.22 3.22V3a.75.75 0 01.75-.75zm-9 13.5a.75.75 0 01.75.75v2.25a1.5 1.5 0 001.5 1.5h13.5a1.5 1.5 0 001.5-1.5V16.5a.75.75 0 011.5 0v2.25a3 3 0 01-3 3H5.25a3 3 0 01-3-3V16.5a.75.75 0 01.75-.75z" />
                                 </svg>
                             </button>
-                            <button className="action-button" onClick={closePreview}>
+                            <button className="action-button" onClick={() => setPreviewUrl(null)}>
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                                     <path fillRule="evenodd" d="M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z" />
                                 </svg>

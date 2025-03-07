@@ -3,15 +3,22 @@ import axios from 'axios';
 import './pixelcanvas';
 import "./uploadquestions.css";
 import { useNavigate } from 'react-router-dom';
-import { Button, Stack, Snackbar, Alert } from '@mui/material';
+import { 
+    Button, Stack, Snackbar, Alert, MenuItem, 
+    FormControl, Select, InputLabel, IconButton
+} from '@mui/material';
 import Sortable from 'sortablejs';
-import { AddCircle, CloudUpload, Delete as DeleteIcon, Send, Edit as EditIcon } from '@mui/icons-material';
+import { AddCircle, CloudUpload, Close, Send, Edit as EditIcon, ArrowBack } from '@mui/icons-material';
+
+import {Typography} from '@mui/material';
 import Loading from './loading';
 
-
-export default function PdfHome() {
-    const [questions, setQuestions] = useState([]);
+export default function UploadQuestions() {
+    // Initialize with one empty question
+    const [questions, setQuestions] = useState([{ id: Date.now(), content: '' }]);
     const [inputValue, setInputValue] = useState('');
+    const [contentLength, setContentLength] = useState('medium');
+    const [complexity, setComplexity] = useState('simple');
     const fileInputRef = useRef(null);
     const questionsListRef = useRef(null);
     const sortableInstanceRef = useRef(null);
@@ -75,16 +82,17 @@ export default function PdfHome() {
             setSnackbarOpen(true);
             return;
         }
-        if (inputValue.trim()) {
-            setQuestions([...questions, {
-                id: Date.now(),
-                content: inputValue.trim()
-            }]);
-            setInputValue('');
-            setSnackbarSeverity('success');
-            setSnackbarMessage('Question added.');
-            setSnackbarOpen(true);
-        }
+        
+        // Add a new empty question
+        setQuestions([...questions, {
+            id: Date.now(),
+            content: ''
+        }]);
+        
+        // Set editing mode for the new question
+        setTimeout(() => {
+            setEditingId(Date.now());
+        }, 0);
     };
 
     const handleFileUpload = () => {
@@ -94,6 +102,12 @@ export default function PdfHome() {
     const handleDeleteQuestion = (id) => {
         setQuestions((prev) => {
             const newArr = prev.filter((q) => q.id !== id);
+            
+            // If all questions are deleted, add one empty question
+            if (newArr.length === 0) {
+                return [{ id: Date.now(), content: '' }];
+            }
+            
             setSnackbarSeverity('info');
             setSnackbarMessage('Question deleted.');
             setSnackbarOpen(true);
@@ -109,50 +123,102 @@ export default function PdfHome() {
             const text = reader.result;
             if (typeof text !== 'string') return;
             const lines = text.split('\n').map((ln) => ln.trim()).filter((ln) => ln);
+            
             if (lines.length > 20) {
                 setSnackbarSeverity('error');
                 setSnackbarMessage('File has more than 20 questions.');
                 setSnackbarOpen(true);
                 return;
             }
+            
             if (questions.length + lines.length > 20) {
                 setSnackbarSeverity('error');
                 setSnackbarMessage('Total questions exceed 20.');
                 setSnackbarOpen(true);
                 return;
             }
-            const newQuestions = lines.map((q) => ({
+            
+            // Check for duplicates
+            const currentQuestions = questions.map(q => q.content.toLowerCase());
+            const newNonDuplicates = lines.filter(line => 
+                !currentQuestions.includes(line.toLowerCase())
+            );
+            
+            if (newNonDuplicates.length < lines.length) {
+                setSnackbarSeverity('warning');
+                setSnackbarMessage('Some duplicate questions were skipped.');
+                setSnackbarOpen(true);
+            }
+            
+            if (newNonDuplicates.length === 0) {
+                setSnackbarSeverity('error');
+                setSnackbarMessage('All questions in file are duplicates.');
+                setSnackbarOpen(true);
+                return;
+            }
+            
+            // Remove empty question if it exists
+            let existingQuestions = questions;
+            if (existingQuestions.length === 1 && existingQuestions[0].content === '') {
+                existingQuestions = [];
+            }
+            
+            const newQuestions = newNonDuplicates.map((q) => ({
                 id: Date.now() + Math.random(),
                 content: q
             }));
-            setQuestions((prev) => [...prev, ...newQuestions]);
+            
+            setQuestions([...existingQuestions, ...newQuestions]);
             setSnackbarSeverity('success');
             setSnackbarMessage('File uploaded successfully.');
             setSnackbarOpen(true);
         };
         reader.readAsText(file);
+        // Clear the input so the same file can be uploaded again
+        e.target.value = '';
+    };
+
+    const handleContentLengthChange = (event) => {
+        setContentLength(event.target.value);
+    };
+
+    const handleComplexityChange = (event) => {
+        setComplexity(event.target.value);
     };
 
     const handleSubmitAll = () => {
-        if (!questions.length) {
+        // Filter out empty questions
+        const validQuestions = questions.filter(q => q.content.trim());
+        
+        if (!validQuestions.length) {
             setSnackbarSeverity('warning');
             setSnackbarMessage('No questions to submit.');
             setSnackbarOpen(true);
             return;
         }
+        
         setLoading(true);
         axios.post('http://localhost:8080/api/pdf', {
-            questions,
+            questions: validQuestions.map((q) => q.content),
+            contentLength,
+            complexity,
             sessionId: localStorage.getItem('sessionId')
+        },{
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
         }).then((res) => {
-            const QnA = res.data.responses;
-            
+            const url = res.data.url;
+            // Navigate to viewpdf page with the PDF URL
+            nav(`/viewpdf?url=${encodeURIComponent(url)}`);
         })
-
-
-        setSnackbarSeverity('success');
-        setSnackbarMessage('All questions submitted successfully.');
-        setSnackbarOpen(true);
+        .catch((error) => {
+            console.error("Error submitting questions:", error);
+            setSnackbarSeverity('error');
+            setSnackbarMessage('Failed to generate PDF. Please try again.');
+            setSnackbarOpen(true);
+            setLoading(false);
+        });
     };
 
     const handleEditStart = (question) => {
@@ -161,124 +227,164 @@ export default function PdfHome() {
     };
 
     const handleEditSave = (id) => {
-        if (editValue.trim()) {
-            setQuestions(questions.map(q => 
-                q.id === id ? { ...q, content: editValue.trim() } : q
-            ));
-            setEditingId(null);
-            setEditValue('');
-            setSnackbarSeverity('success');
-            setSnackbarMessage('Question updated.');
+        // Check for duplicates
+        const duplicateExists = questions.some(q => 
+            q.id !== id && 
+            q.content.toLowerCase() === editValue.trim().toLowerCase() &&
+            editValue.trim() !== ''
+        );
+        
+        if (duplicateExists) {
+            setSnackbarSeverity('error');
+            setSnackbarMessage('Duplicate question not allowed.');
             setSnackbarOpen(true);
+            return;
         }
+        
+        setQuestions(questions.map(q => 
+            q.id === id ? { ...q, content: editValue.trim() } : q
+        ));
+        setEditingId(null);
+        setEditValue('');
+    };
+
+    const handleGoBack = () => {
+        nav('/pdf');
     };
 
     return (
-        loading ? <Loading /> :
-        (<div className='upload-body'>
-            <div className='upload-main'>
-                <div className='input-container'>
-                    <input 
-                        type='text' 
-                        placeholder='Enter the question' 
-                        className='upload-input'
-                        value={inputValue}
-                        onChange={(e) => setInputValue(e.target.value)}
-                        onKeyDown={(e) => e.key === 'Enter' && handleAddQuestion()}
-                    />
-                    <Stack direction="row" spacing={2} sx={{ ml: 2}}>
-                        <Button 
-                            variant="outlined"
-                            startIcon={<AddCircle />} 
+        loading ? <Loading /> : (
+            <div className="upload-body">
+                <div className="upload-main">
+                    <div className="content-wrapper">
+                        
+                    <div className="controls-container top-controls">
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            startIcon={<AddCircle />}
                             onClick={handleAddQuestion}
-                            size="large"
-                            sx={{ minWidth: '10px' }}
+                            className="control-button"
+                            style={{ minWidth: '160px', width: 'auto' }}
                         >
-                            Add
+                            Add Question
                         </Button>
-                        <Button 
-                            variant="outlined"
-                            startIcon={<CloudUpload />} 
+                        
+                        <FormControl className="select-control" style={{ minWidth: '180px' }}>
+                            <InputLabel id="content-length-label">Content Length</InputLabel>
+                            <Select
+                                labelId="content-length-label"
+                                value={contentLength}
+                                label="Content Length"
+                                onChange={handleContentLengthChange}
+                            >
+                                <MenuItem value="short">Short</MenuItem>
+                                <MenuItem value="medium">Medium</MenuItem>
+                                <MenuItem value="long">Long</MenuItem>
+                            </Select>
+                        </FormControl>
+                        
+                        <FormControl className="select-control" style={{ minWidth: '180px' }}>
+                            <InputLabel id="complexity-label">Complexity</InputLabel>
+                            <Select
+                                labelId="complexity-label"
+                                value={complexity}
+                                label="Complexity"
+                                onChange={handleComplexityChange}
+                            >
+                                <MenuItem value="simple">Simple</MenuItem>
+                                <MenuItem value="technical">Technical</MenuItem>
+                            </Select>
+                        </FormControl>
+                        
+                        <Button
+                            variant="contained"
+                            color="secondary"
+                            startIcon={<CloudUpload />}
                             onClick={handleFileUpload}
-                            size="large"
-                            sx={{ minWidth: '10px' }}
+                            className="control-button"
+                            style={{ minWidth: '160px', width: 'auto' }}
                         >
-                            Upload
+                            Upload File
                         </Button>
                         <input
                             type="file"
                             ref={fileInputRef}
                             style={{ display: 'none' }}
+                            accept=".txt"
                             onChange={handleFileChange}
                         />
-                        <Button 
-                            variant="outlined"
-                            startIcon={<Send />} 
-                            onClick={handleSubmitAll}
-                            size="large"
-                            sx={{ minWidth: '10px' }}
-                        >
-                            Submit
-                        </Button>
-                    </Stack>
-                </div>
-                <pixel-canvas data-gap="20" data-speed="100" data-colors="#e0f2fe, #7dd3fc, #0ea5e9" data-no-focus></pixel-canvas>
-            </div>
-            
-            <div className="questions-container">
-                <div ref={questionsListRef} className="questions-list">
-                    {questions.map((question) => (
-                        <div key={question.id} className="question-item" data-id={question.id}>
-                            <span className="drag-handle">☰</span>
-                            {editingId === question.id ? (
-                                <input
-                                    type="text"
-                                    className="question-content editable"
-                                    value={editValue}
-                                    onChange={(e) => setEditValue(e.target.value)}
-                                    onBlur={() => handleEditSave(question.id)}
-                                    onKeyDown={(e) => e.key === 'Enter' && handleEditSave(question.id)}
-                                    autoFocus
-                                />
-                            ) : (
-                                <span className="question-content">{question.content}</span>
-                            )}
-                            <div className="question-actions">
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    size="small"
-                                    startIcon={<EditIcon />}
-                                    onClick={() => handleEditStart(question)}
-                                    sx={{ minWidth: '100px' }}
-                                >
-                                    Edit
-                                </Button>
-                                <Button
-                                    variant="outlined"
-                                    color="error"
-                                    size="small"
-                                    startIcon={<DeleteIcon />}
-                                    onClick={() => handleDeleteQuestion(question.id)}
-                                    sx={{ minWidth: '100px' }}
-                                >
-                                    Delete
-                                </Button>
+                    </div>
+                        <div className="questions-container">
+                            <div className="questions-header">
+                                <Typography variant="h6">Questions ({questions.length}/20)</Typography>
+                            </div>
+                            
+                            <div ref={questionsListRef} className="questions-list">
+                                {questions.map((question) => (
+                                    <div key={question.id} className="question-item" data-id={question.id}>
+                                        <span className="drag-handle">☰</span>
+                                        {editingId === question.id ? (
+                                            <input
+                                                className="question-content editable"
+                                                value={editValue}
+                                                onChange={(e) => setEditValue(e.target.value)}
+                                                onBlur={() => handleEditSave(question.id)}
+                                                onKeyDown={(e) => e.key === 'Enter' && e.ctrlKey && handleEditSave(question.id)}
+                                                autoFocus
+                                            />
+                                        ) : (
+                                            <div 
+                                                className="question-content"
+                                                onClick={() => handleEditStart(question)}
+                                            >
+                                                {question.content || "(Click to edit)"}
+                                            </div>
+                                        )}
+                                        <IconButton 
+                                            className="delete-button"
+                                            onClick={() => handleDeleteQuestion(question.id)}
+                                            size="small"
+                                        >
+                                            <Close />
+                                        </IconButton>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-                    ))}
+                        <div className="controls-container bottom-controls">
+                            <Button
+                                variant="outlined"
+                                startIcon={<ArrowBack />}
+                                onClick={handleGoBack}
+                                className="control-button"
+                            >
+                                Back
+                            </Button>
+                            
+                            <Button
+                                variant="contained"
+                                color="success"
+                                startIcon={<Send />}
+                                onClick={handleSubmitAll}
+                                className="control-button"
+                            >
+                                Submit
+                            </Button>
+                        </div>
+                    </div>
+
+                    <Snackbar
+                        open={snackbarOpen}
+                        autoHideDuration={3000}
+                        onClose={() => setSnackbarOpen(false)}
+                    >
+                        <Alert severity={snackbarSeverity} onClose={() => setSnackbarOpen(false)}>
+                            {snackbarMessage}
+                        </Alert>
+                    </Snackbar>
                 </div>
             </div>
-
-            <Snackbar
-                open={snackbarOpen}
-                autoHideDuration={3000}
-                onClose={() => setSnackbarOpen(false)}
-            >
-                <Alert severity={snackbarSeverity} onClose={() => setSnackbarOpen(false)}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-        </div>)
+        )
     );
 }
